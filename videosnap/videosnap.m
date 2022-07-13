@@ -100,10 +100,22 @@
                     return 0;
                     break;
 
-                // device
+                // device name
                 case 'd':
                     if (i+1 < argc) {
                         device = [self deviceNamed:argValue];
+                        if (device == nil) {
+                            error("Device \"%s\" not found - aborting\n", [argValue UTF8String]);
+                            return 128;
+                        }
+                        ++i;
+                    }
+                    break;
+                    
+                // device ID
+                case 'i':
+                    if (i+1 < argc) {
+                        device = [self deviceById:argValue];
                         if (device == nil) {
                             error("Device \"%s\" not found - aborting\n", [argValue UTF8String]);
                             return 128;
@@ -286,6 +298,20 @@
   AVCaptureDevice *device = nil;
   for (AVCaptureDevice *thisDevice in connectedDevices) {
     if ([name isEqualToString:[thisDevice localizedName]]) {
+      device = thisDevice;
+    }
+  }
+
+  return device;
+}
+
+/**
+ * Returns a device matching on uniqueId or nil if not found
+ */
+- (AVCaptureDevice *)deviceById:(NSString *)deviceId {
+  AVCaptureDevice *device = nil;
+  for (AVCaptureDevice *thisDevice in connectedDevices) {
+    if ([deviceId isEqualToString:[thisDevice uniqueID]]) {
       device = thisDevice;
     }
   }
